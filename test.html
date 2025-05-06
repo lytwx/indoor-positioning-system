@@ -1,0 +1,19 @@
+<canvas id="canvas"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
+<script>
+  const canvas = new fabric.Canvas('canvas', { selection: true });
+  canvas.setWidth(window.innerWidth);
+  canvas.setHeight(window.innerHeight);
+
+  const circle = new fabric.Circle({
+    radius: 20,
+    fill: 'red',
+    left: 100,
+    top: 100,
+    selectable: true,
+    hasControls: false,
+    hasBorders: false
+  });
+
+  canvas.add(circle);
+</script>
