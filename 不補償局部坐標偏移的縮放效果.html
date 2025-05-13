@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fabric.js Zoom Without Compensation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+  <style>
+    canvas {
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h3>不補償局部坐標偏移的縮放效果</h3>
+  <canvas id="c" width="800" height="600"></canvas>
+  <script>
+    const canvas = new fabric.Canvas('c', {
+      preserveObjectStacking: true
+    });
+
+    const rect1 = new fabric.Rect({
+      left: 0, top: 0, width: 100, height: 100, fill: 'blue' 
+    });
+    const rect2 = new fabric.Rect({
+      left: 100, top: 100, width: 50, height: 50, fill: 'red' 
+    });
+
+    const group = new fabric.Group([rect1, rect2], {
+      left: 200,
+      top: 150,
+      scaleX: 1,
+      scaleY: 1,
+      selectable: true,
+      hasControls: true,
+      hasBorders: true,
+      lockMovementX: false,
+      lockMovementY: false,
+    });
+
+    canvas.add(group);
+
+    // 滑鼠點可視化：黑色圓點
+    let zoomAnchor = null;
+
+    canvas.on('mouse:wheel', function(opt) {
+      const evt = opt.e;
+      evt.preventDefault();
+      evt.stopPropagation();
+
+      const mouse = new fabric.Point(evt.offsetX, evt.offsetY);
+
+      // 顯示滑鼠位置的圓點
+      if (zoomAnchor) canvas.remove(zoomAnchor);
+      zoomAnchor = new fabric.Circle({
+        left: mouse.x,
+        top: mouse.y,
+        originX: 'center',
+        originY: 'center',
+        radius: 4,
+        fill: 'black',
+        selectable: false,
+        evented: false
+      });
+      canvas.add(zoomAnchor);
+      canvas.bringToFront(zoomAnchor);
+
+      // 縮放但不補償局部坐標差
+      let zoom = group.scaleX || 1;
+      const delta = evt.deltaY;
+      zoom *= 0.999 ** delta;
+      if (zoom > 3) zoom = 3;
+      if (zoom < 0.2) zoom = 0.2;
+
+      group.scale(zoom);
+      group.setCoords();
+
+      canvas.requestRenderAll();
+    });
+  </script>
+</body>
+</html>
